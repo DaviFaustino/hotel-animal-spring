@@ -1,5 +1,7 @@
 package com.spring.animal.hotel.spring.controllers;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -52,6 +54,13 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<List<BookingModel>> getAllBookings() {
         List<BookingModel> bookingList = bookingRepository.findAll();
+        if (!bookingList.isEmpty()) {
+            for (BookingModel booking: bookingList) {
+                UUID id = booking.getId_bo();
+                booking.add(linkTo(methodOn(BookingController.class).getOneBooking(id)).withSelfRel());
+            }
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(bookingList);
     }
 
@@ -59,6 +68,8 @@ public class BookingController {
     public ResponseEntity<Object> getOneBooking(@PathVariable(value = "id") UUID id) {
         Optional<BookingModel> optionalBooking = bookingRepository.findById(id);
         if (optionalBooking.isPresent()) {
+            optionalBooking.get().add(linkTo(methodOn(BookingController.class).getAllBookings()).withRel("Lista de Bookings"));
+
             return ResponseEntity.status(HttpStatus.OK).body(optionalBooking.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encrontrado.");

@@ -3,6 +3,8 @@ package com.spring.animal.hotel.spring.models;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,7 +23,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookingModel {
+public class BookingModel extends RepresentationModel<BookingModel> {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id_bo;
