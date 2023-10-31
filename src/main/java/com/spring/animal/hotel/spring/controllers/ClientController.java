@@ -22,6 +22,9 @@ import com.spring.animal.hotel.spring.repositories.ClientRepository;
 
 import jakarta.validation.Valid;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 @RestController
 @RequestMapping("/clients")
 public class ClientController {
@@ -38,6 +41,12 @@ public class ClientController {
     @GetMapping
     public ResponseEntity<List<ClientModel>> getAllClients() {
         List<ClientModel> clientList = repository.findAll();
+        if (!clientList.isEmpty()) {
+            for (ClientModel client: clientList) {
+                int id = client.getId_cl();
+                client.add(linkTo(methodOn(ClientController.class).getOneClient(id)).withSelfRel());
+            }
+        }
         return ResponseEntity.status(HttpStatus.OK).body(clientList);
     }
 
@@ -45,6 +54,8 @@ public class ClientController {
     public ResponseEntity<Object> getOneClient(@PathVariable(value = "id") int id) {
         Optional<ClientModel> optionalClient = repository.findById(id);
         if (optionalClient.isPresent()) {
+            optionalClient.get().add(linkTo(methodOn(ClientController.class).getAllClients()).withRel("Lista de clientes"));
+
             return ResponseEntity.status(HttpStatus.OK).body(optionalClient.get());
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encontrado.");
