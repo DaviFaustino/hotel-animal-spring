@@ -22,4 +22,12 @@ public class ClientModel {
     private int id_cl;
     private String name_cl;
     private String phone_cl;
+
+    public ClientModel(ClientDto clientDto, int id) {
+        if (id != -1) {
+            this.id_cl = id;
+        }
+        this.name_cl = clientDto.name_cl();
+        this.phone_cl = clientDto.phone_cl();
+    }
 }
