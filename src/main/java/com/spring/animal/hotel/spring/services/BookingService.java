@@ -63,6 +63,20 @@ public class BookingService {
         return "O registro escolhido não existe.";
     }
 
+    public Object applyDiscountBooking(UUID id) {
+        Object response = getOneBooking(id);
+
+        if (response.getClass() == BookingModel.class) {
+            //Aplica desconto de 10%
+            BookingModel booking = (BookingModel) response;
+            booking.setCost_bo((int) (booking.getCost_bo() * 0.9f));
+
+            return bookingRepository.save(booking);
+        }
+        
+        return response;
+    }
+
     public boolean deleteBooking(UUID id) {
         Optional<BookingModel> optionalBooking = bookingRepository.findById(id);
 
