@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -57,6 +58,17 @@ public class BookingController {
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateBooking(@PathVariable(value = "id") UUID id, @RequestBody @Valid BookingDto bookingDto) {
         Object serviceResponse = bookingService.updateBooking(bookingDto, id);
+
+        if (serviceResponse.getClass() == BookingModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
+    }
+
+    @PatchMapping("/apply-discount/{id}")
+    public ResponseEntity<Object> applyDiscountBooking(@PathVariable(value = "id") UUID id) {
+        Object serviceResponse = bookingService.applyDiscountBooking(id);
 
         if (serviceResponse.getClass() == BookingModel.class) {
             return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
