@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.animal.hotel.spring.models.BookingDto;
 import com.spring.animal.hotel.spring.models.BookingModel;
-import com.spring.animal.hotel.spring.repositories.BookingRepository;
 import com.spring.animal.hotel.spring.services.BookingService;
 
 import jakarta.validation.Valid;
@@ -25,9 +24,6 @@ import jakarta.validation.Valid;
 @RestController
 @RequestMapping("/bookings")
 public class BookingController {
-    @Autowired
-    BookingRepository bookingRepository;
-
     @Autowired
     BookingService bookingService;
 
@@ -55,7 +51,7 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encrontrado.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
     @PutMapping("/{id}")
