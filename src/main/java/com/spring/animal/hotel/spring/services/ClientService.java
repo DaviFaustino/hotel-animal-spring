@@ -6,14 +6,19 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.animal.hotel.spring.models.BookingModel;
 import com.spring.animal.hotel.spring.models.ClientDto;
 import com.spring.animal.hotel.spring.models.ClientModel;
+import com.spring.animal.hotel.spring.repositories.BookingRepository;
 import com.spring.animal.hotel.spring.repositories.ClientRepository;
 
 @Service
 public class ClientService {
     @Autowired
     ClientRepository clientRepository;
+
+    @Autowired
+    BookingRepository bookingRepository;
 
     public ClientModel saveClient(ClientDto clientDto) {
         ClientModel clientModel = new ClientModel(clientDto, -1);
@@ -33,6 +38,17 @@ public class ClientService {
         }
         
         return "O registro não foi encontrado.";
+    }
+
+    public Integer getTotalHostingsCost(int id) {
+        List<BookingModel> bookings = bookingRepository.findByClientModelId(id);
+        int bookingsCostSum = 0;
+        
+        for (BookingModel boks: bookings) {
+            bookingsCostSum += boks.getCost_bo();
+        }
+
+        return bookingsCostSum;
     }
 
     public Object updateClient(int id, ClientDto clientDto) {
