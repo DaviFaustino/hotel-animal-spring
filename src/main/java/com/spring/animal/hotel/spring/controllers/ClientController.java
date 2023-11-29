@@ -47,6 +47,13 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encontrado.");
     }
 
+    @GetMapping("/total-hostings-cost/{id}")
+    public ResponseEntity<Integer> getTotalHostingsCost(@PathVariable(value = "id") int id) {
+        Integer serviceResponse = clientService.getTotalHostingsCost(id);
+        
+        return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCliente(@PathVariable(value = "id") int id, @RequestBody @Valid ClientDto clientDto) {
         Object serviceResponse = clientService.updateClient(id, clientDto);
