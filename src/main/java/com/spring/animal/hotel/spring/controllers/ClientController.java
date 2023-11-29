@@ -44,7 +44,7 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encontrado.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
     @GetMapping("/total-hostings-cost/{id}")
