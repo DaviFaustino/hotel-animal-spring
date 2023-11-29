@@ -13,20 +13,20 @@ import com.spring.animal.hotel.spring.repositories.ClientRepository;
 @Service
 public class ClientService {
     @Autowired
-    ClientRepository repository;
+    ClientRepository clientRepository;
 
     public ClientModel saveClient(ClientDto clientDto) {
         ClientModel clientModel = new ClientModel(clientDto, -1);
 
-        return repository.save(clientModel);
+        return clientRepository.save(clientModel);
     }
 
     public List<ClientModel> getAllClients() {
-        return repository.findAll();
+        return clientRepository.findAll();
     }
 
     public Object getOneClient(int id) {
-        Optional<ClientModel> optionalClient = repository.findById(id);
+        Optional<ClientModel> optionalClient = clientRepository.findById(id);
 
         if (optionalClient.isPresent()) {
             return optionalClient.get();
@@ -36,20 +36,20 @@ public class ClientService {
     }
 
     public Object updateClient(int id, ClientDto clientDto) {
-        if (repository.existsById(id)) {
+        if (clientRepository.existsById(id)) {
             ClientModel clientModel = new ClientModel(clientDto, id);
             
-            return repository.save(clientModel);
+            return clientRepository.save(clientModel);
         }
 
         return "O registro escolhido não existe.";
     }
 
     public boolean deleteClient(int id) {
-        Optional<ClientModel> optionalClient = repository.findById(id);
+        Optional<ClientModel> optionalClient = clientRepository.findById(id);
 
         if (optionalClient.isPresent()) {
-            repository.delete(optionalClient.get());
+            clientRepository.delete(optionalClient.get());
 
             return true;
         }
