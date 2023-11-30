@@ -32,4 +32,13 @@ public class BookingModel {
     @ManyToOne
     @JoinColumn(name = "id_client_bo")
     private ClientModel clientModel;
+
+    public BookingModel(BookingDto bookingDto, UUID id_bo) {
+        if (id_bo != null) {
+            this.id_bo = id_bo;
+        }
+        this.date_check_in_bo = bookingDto.date_check_in_bo();
+        this.date_check_out_bo = bookingDto.date_check_out_bo();
+        this.cost_bo = bookingDto.cost_bo();
+    }
 }

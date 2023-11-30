@@ -1,10 +1,8 @@
 package com.spring.animal.hotel.spring.controllers;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +11,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.animal.hotel.spring.models.BookingDto;
 import com.spring.animal.hotel.spring.models.BookingModel;
-import com.spring.animal.hotel.spring.models.ClientModel;
-import com.spring.animal.hotel.spring.repositories.BookingRepository;
-import com.spring.animal.hotel.spring.repositories.ClientRepository;
+import com.spring.animal.hotel.spring.services.BookingService;
 
 import jakarta.validation.Valid;
 
@@ -29,61 +26,60 @@ import jakarta.validation.Valid;
 @RequestMapping("/bookings")
 public class BookingController {
     @Autowired
-    BookingRepository bookingRepository;
-
-    @Autowired
-    ClientRepository clientRepository;
+    BookingService bookingService;
 
     @PostMapping
     public ResponseEntity<Object> saveBooking(@RequestBody @Valid BookingDto bookingDto) {
-        BookingModel bookingModel = new BookingModel();
-        BeanUtils.copyProperties(bookingDto, bookingModel);
+        Object serviceResponse = bookingService.saveBooking(bookingDto);
 
-        Optional<ClientModel> optionalClient = clientRepository.findById(bookingDto.id_client_bo());
-        if (optionalClient.isPresent()) {
-            bookingModel.setClientModel(optionalClient.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O registro da chave estrangeira fornecida não existe.");
+        if (serviceResponse.getClass() == BookingModel.class) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(bookingRepository.save(bookingModel));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
     
     @GetMapping
     public ResponseEntity<List<BookingModel>> getAllBookings() {
-        List<BookingModel> bookingList = bookingRepository.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(bookingList);
+        return ResponseEntity.status(HttpStatus.OK).body(bookingService.getAllBookings());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneBooking(@PathVariable(value = "id") UUID id) {
-        Optional<BookingModel> optionalBooking = bookingRepository.findById(id);
-        if (optionalBooking.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK).body(optionalBooking.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encrontrado.");
+        Object serviceResponse = bookingService.getOneBooking(id);
+
+        if (serviceResponse.getClass() == BookingModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateBooking(@PathVariable(value = "id") UUID id, @RequestBody @Valid BookingDto bookingDto) {
-        Optional<BookingModel> optionalBooking = bookingRepository.findById(id);
-        if (optionalBooking.isPresent()) {
-            BookingModel bookingModel = optionalBooking.get();
-            BeanUtils.copyProperties(bookingDto, bookingModel);
+        Object serviceResponse = bookingService.updateBooking(bookingDto, id);
 
-            return ResponseEntity.status(HttpStatus.OK).body(bookingRepository.save(bookingModel));
+        if (serviceResponse.getClass() == BookingModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro escolhido não existe.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
+    }
+
+    @PatchMapping("/apply-discount/{id}")
+    public ResponseEntity<Object> applyDiscountBooking(@PathVariable(value = "id") UUID id) {
+        Object serviceResponse = bookingService.applyDiscountBooking(id);
+
+        if (serviceResponse.getClass() == BookingModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
+        }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteBooking(@PathVariable(value = "id") UUID id) {
-        Optional<BookingModel> optionalBooking = bookingRepository.findById(id);
-        if (optionalBooking.isPresent()) {
-            bookingRepository.delete(optionalBooking.get());
-
+        if (bookingService.deleteBooking(id)) {
             return ResponseEntity.status(HttpStatus.OK).body("Deleção bem sucedida.");
         }
 

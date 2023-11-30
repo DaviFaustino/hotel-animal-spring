@@ -1,9 +1,7 @@
 package com.spring.animal.hotel.spring.controllers;
 
 import java.util.List;
-import java.util.Optional;
 
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.animal.hotel.spring.models.ClientModel;
 import com.spring.animal.hotel.spring.models.ClientDto;
-import com.spring.animal.hotel.spring.repositories.ClientRepository;
+import com.spring.animal.hotel.spring.services.ClientService;
 
 import jakarta.validation.Valid;
 
@@ -26,50 +24,52 @@ import jakarta.validation.Valid;
 @RequestMapping("/clients")
 public class ClientController {
     @Autowired
-    private ClientRepository repository;
+    private ClientService clientService;
 
     @PostMapping
     public ResponseEntity<ClientModel> saveClient(@RequestBody @Valid ClientDto clientDto) {
-        ClientModel clientModel = new ClientModel();
-        BeanUtils.copyProperties(clientDto, clientModel);
-        return ResponseEntity.status(HttpStatus.CREATED).body(repository.save(clientModel));
+        return ResponseEntity.status(HttpStatus.CREATED).body(clientService.saveClient(clientDto));
     }
 
     @GetMapping
     public ResponseEntity<List<ClientModel>> getAllClients() {
-        List<ClientModel> clientList = repository.findAll();
-        return ResponseEntity.status(HttpStatus.OK).body(clientList);
+        return ResponseEntity.status(HttpStatus.OK).body(clientService.getAllClients());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneClient(@PathVariable(value = "id") int id) {
-        Optional<ClientModel> optionalClient = repository.findById(id);
-        if (optionalClient.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK).body(optionalClient.get());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro não foi encontrado.");
+        Object serviceResponse = clientService.getOneClient(id);
+
+        if (serviceResponse.getClass() == ClientModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
+    }
+
+    @GetMapping("/total-hostings-cost/{id}")
+    public ResponseEntity<Integer> getTotalHostingsCost(@PathVariable(value = "id") int id) {
+        Integer serviceResponse = clientService.getTotalHostingsCost(id);
+        
+        return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCliente(@PathVariable(value = "id") int id, @RequestBody @Valid ClientDto clientDto) {
-        Optional<ClientModel> optionalClient = repository.findById(id);
-        if (optionalClient.isPresent()) {
-            ClientModel clientModel = optionalClient.get();
-            BeanUtils.copyProperties(clientDto, clientModel);
-            
-            return ResponseEntity.status(HttpStatus.OK).body(repository.save(clientModel));
+        Object serviceResponse = clientService.updateClient(id, clientDto);
+
+        if (serviceResponse.getClass() == ClientModel.class) {
+            return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("O registro escolhido não existe.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteClient(@PathVariable(value = "id") int id) {
-        Optional<ClientModel> optionalClient = repository.findById(id);
-        if (optionalClient.isPresent()) {
-            repository.delete(optionalClient.get());
+        boolean serviceResponse = clientService.deleteClient(id);
 
+        if (serviceResponse) {
             return ResponseEntity.status(HttpStatus.OK).body("Deleção bem sucedida.");
         }
 
