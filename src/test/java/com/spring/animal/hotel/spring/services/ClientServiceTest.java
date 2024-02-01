@@ -1,5 +1,6 @@
 package com.spring.animal.hotel.spring.services;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,15 +9,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+import com.spring.animal.hotel.spring.models.BookingModel;
 import com.spring.animal.hotel.spring.models.ClientDto;
 import com.spring.animal.hotel.spring.models.ClientModel;
 import com.spring.animal.hotel.spring.repositories.BookingRepository;
@@ -33,10 +36,18 @@ public class ClientServiceTest {
     @InjectMocks
     ClientService clientService;
 
+    ClientModel client;
+    ClientDto clientDto;
+
+    @BeforeEach
+    void setup() {
+        client = new ClientModel(1, "Agata Borralheira", "(00) 99999-9999");
+        clientDto = new ClientDto("Agata Borralheira", "(00) 99999-9999");
+    }
+
     @Test
     @DisplayName("Deve salvar um Client no banco de dados corretamente.")
     void testSaveClient() {
-        ClientDto clientDto = new ClientDto("Agata Borralheira", "(00) 99999-9999");
         ClientModel savedClientInRepository = new ClientModel(clientDto, 1);
 
         when(clientRepository.save(any())).thenReturn(savedClientInRepository);
@@ -50,9 +61,8 @@ public class ClientServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retornar uma lista com todos os clientes")
     void testGetAllClients() {
-        ClientModel client = new ClientModel(1, "Agata Borralheira", "(00) 99999-9999");
-
         when(clientRepository.findAll()).thenReturn(Arrays.asList(client));
 
         List<ClientModel> clientList = clientService.getAllClients();
@@ -63,9 +73,8 @@ public class ClientServiceTest {
     }
 
     @Test
+    @DisplayName("Deve retorna um cliente pelo id")
     void testGetOneClient() {
-        ClientModel client = new ClientModel(1, "Agata Borralheira", "(00) 99999-9999");
-        
         when(clientRepository.findById(1)).thenReturn(Optional.of(client));
 
         Object result = clientService.getOneClient(1);
@@ -76,17 +85,56 @@ public class ClientServiceTest {
     }
 
     @Test
-    void testUpdateClient() {
-
-    }
-
-    @Test
-    void testDeleteClient() {
-
-    }
-
-    @Test
+    @DisplayName("Deve retornar o custo total das reservas de um cliente")
     void testGetTotalHostingsCost() {
+        BookingModel booking1 = new BookingModel(UUID.nameUUIDFromBytes(new byte[1]),
+                                                new Timestamp(1705953600),
+                                                new Timestamp(1706953600),
+                                                1000,
+                                                client);
+        BookingModel booking2 = new BookingModel(UUID.nameUUIDFromBytes(new byte[2]),
+                                                new Timestamp(1705953600),
+                                                new Timestamp(1706953600),
+                                                2000,
+                                                client);
 
+        when(bookingRepository.findByClientModelId(1)).thenReturn(List.of(booking1, booking2));
+
+        int serviceResponse = clientService.getTotalHostingsCost(1);
+
+        assertEquals(serviceResponse, 3000);
+        
+        verify(bookingRepository).findByClientModelId(1);
+        verifyNoMoreInteractions(bookingRepository);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar o cliente com sucesso")
+    void testUpdateClient() {
+        ClientModel client = new ClientModel(clientDto, 1);
+
+        when(clientRepository.existsById(1)).thenReturn(true);
+        when(clientRepository.save(any(ClientModel.class))).thenReturn(client);
+
+        Object serviceResponse = clientService.updateClient(1, clientDto);
+
+        assertEquals(serviceResponse, client);
+
+        verify(clientRepository).existsById(1);
+        verify(clientRepository).save(any());
+    }
+
+    @Test
+    @DisplayName("Deve deletar o cliente com sucesso")
+    void testDeleteClient() {
+        when(clientRepository.findById(1)).thenReturn(Optional.of(client));
+        doNothing().when(clientRepository).delete(any());
+
+        boolean serviceResponse = clientService.deleteClient(1);
+
+        assertEquals(serviceResponse, true);
+
+        verify(clientRepository).findById(1);
+        verify(clientRepository).delete(any());
     }
 }
