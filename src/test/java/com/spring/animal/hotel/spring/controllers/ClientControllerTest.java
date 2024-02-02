@@ -1,10 +1,12 @@
 package com.spring.animal.hotel.spring.controllers;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.Arrays;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,14 +19,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-
-import java.util.Arrays;
-
 import com.spring.animal.hotel.spring.models.ClientDto;
 import com.spring.animal.hotel.spring.models.ClientModel;
 import com.spring.animal.hotel.spring.services.ClientService;
@@ -81,22 +75,63 @@ public class ClientControllerTest {
     }
 
     @Test
-    void testGetOneClient() {
+    @DisplayName("Deve retornar um cliente com sucesso a partir de um path variable id")
+    void testGetOneClient() throws Exception {
+        when(clientService.getOneClient(1)).thenReturn(new ClientModel(clientDto, 1));
 
+        mockMvc.perform(get("/clients/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name_cl", is("Alfredo Neves")))
+                .andExpect(jsonPath("$.phone_cl", is("(87) 8787-8787")));
+
+        verify(clientService).getOneClient(1);
+        verifyNoMoreInteractions(clientService);
     }
 
     @Test
-    void testGetTotalHostingsCost() {
+    @DisplayName("Deve retornar com sucesso o total das reservas que o cliente possui")
+    void testGetTotalHostingsCost() throws Exception {
+        when(clientService.getTotalHostingsCost(1)).thenReturn(2000);
 
+        mockMvc.perform(get("/clients/total-hostings-cost/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("2000"));
+
+        verify(clientService).getTotalHostingsCost(1);
+        verifyNoMoreInteractions(clientService);
     }
 
     @Test
-    void testUpdateCliente() {
+    @DisplayName("Deve atualizar com sucesso os dados de um cliente")
+    void testUpdateCliente() throws Exception {
+        when(clientService.updateClient(1, clientDto)).thenReturn(new ClientModel(clientDto, 1));
 
+        mockMvc.perform(put("/clients/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(dtoAsJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name_cl", is("Alfredo Neves")))
+                .andExpect(jsonPath("$.phone_cl", is("(87) 8787-8787")));
+        
+        verify(clientService).updateClient(1, clientDto);
+        verifyNoMoreInteractions(clientService);
     }
 
     @Test
-    void testDeleteClient() {
+    @DisplayName("Deve deletar um cliente com sucesso pelo id")
+    void testDeleteClient() throws Exception {
+        when(clientService.deleteClient(1)).thenReturn(true);
 
+        mockMvc.perform(delete("/clients/{id}", 1)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Deleção bem sucedida."));
+        
+        verify(clientService).deleteClient(1);
+        verifyNoMoreInteractions(clientService);
     }
 }
