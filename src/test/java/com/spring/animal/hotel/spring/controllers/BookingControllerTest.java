@@ -32,6 +32,7 @@ public class BookingControllerTest {
 
     private BookingModel booking;
     private ClientModel client;
+    private UUID uuid;
 
     @BeforeEach
     void setup() {
@@ -42,6 +43,7 @@ public class BookingControllerTest {
                                     new Timestamp(1706953600),
                                     1000,
                                     client);
+        uuid = UUID.nameUUIDFromBytes(new byte[1]);
     }
 
     @Test
@@ -49,7 +51,7 @@ public class BookingControllerTest {
     void testGetOneBookingCase1() throws Exception {
         when(bookingService.getOneBooking(any(UUID.class))).thenReturn(booking);
         
-        mockMvc.perform(get("/bookings/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+        mockMvc.perform(get("/bookings/{id}", uuid.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -67,7 +69,7 @@ public class BookingControllerTest {
     void testGetOneBookingCase2() throws Exception {
         when(bookingService.getOneBooking(any(UUID.class))).thenReturn("O registro não foi encontrado.");
         
-        mockMvc.perform(get("/bookings/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+        mockMvc.perform(get("/bookings/{id}", uuid.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON_VALUE))
                 .andExpect(status().isNotFound())
@@ -83,7 +85,7 @@ public class BookingControllerTest {
     void testApplyDiscountBookingCase1() throws Exception {
         when(bookingService.applyDiscountBooking(any())).thenReturn(booking);
 
-        mockMvc.perform(patch("/bookings/apply-discount/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+        mockMvc.perform(patch("/bookings/apply-discount/{id}", uuid.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -101,7 +103,7 @@ public class BookingControllerTest {
     void testApplyDiscountBookingCase2() throws Exception {
         when(bookingService.applyDiscountBooking(any())).thenReturn("O registro não foi encontrado.");
 
-        mockMvc.perform(patch("/bookings/apply-discount/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+        mockMvc.perform(patch("/bookings/apply-discount/{id}", uuid.toString())
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
