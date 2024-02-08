@@ -96,4 +96,18 @@ public class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
+    @Test
+    @DisplayName("Deve falhar ao aplicar o desconto retornando a mensagem de erro")
+    void testApplyDiscountBookingCase2() throws Exception {
+        when(bookingService.applyDiscountBooking(any())).thenReturn("O registro não foi encontrado.");
+
+        mockMvc.perform(patch("/bookings/apply-discount/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("O registro não foi encontrado."));
+                
+        verify(bookingService).applyDiscountBooking(any());
+        verifyNoMoreInteractions(bookingService);
+    }
 }
