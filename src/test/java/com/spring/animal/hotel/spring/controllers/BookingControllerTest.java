@@ -78,4 +78,22 @@ public class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
+    @Test
+    @DisplayName("Deve aplicar desconto na reserva com sucesso")
+    void testApplyDiscountBookingCase1() throws Exception {
+        when(bookingService.applyDiscountBooking(any())).thenReturn(booking);
+
+        mockMvc.perform(patch("/bookings/apply-discount/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id_bo", is(booking.getId_bo().toString())))
+                .andExpect(jsonPath("$.date_check_in_bo", is("1970-01-20T17:52:33.600+00:00")))
+                .andExpect(jsonPath("$.date_check_out_bo", is("1970-01-20T18:09:13.600+00:00")))
+                .andExpect(jsonPath("$.cost_bo", is(booking.getCost_bo())));
+                
+        verify(bookingService).applyDiscountBooking(any());
+        verifyNoMoreInteractions(bookingService);
+    }
+
 }
