@@ -62,4 +62,20 @@ public class BookingControllerTest {
         verifyNoMoreInteractions(bookingService);
     }
 
+    @Test
+    @DisplayName("Deve falhar retornando mensagem de erro")
+    void testGetOneBookingCase2() throws Exception {
+        when(bookingService.getOneBooking(any(UUID.class))).thenReturn("O registro não foi encontrado.");
+        
+        mockMvc.perform(get("/bookings/{id}", UUID.nameUUIDFromBytes(new byte[1]).toString())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(status().isNotFound())
+                .andExpect(content().encoding("UTF-8"))
+                .andExpect(content().string("O registro não foi encontrado."));
+
+        verify(bookingService).getOneBooking(any());
+        verifyNoMoreInteractions(bookingService);
+    }
+
 }
