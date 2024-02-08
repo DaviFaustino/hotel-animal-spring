@@ -80,7 +80,9 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .header("Content-Type", "application/json;charset=UTF-8")
+                            .body(serviceResponse);
     }
 
     @DeleteMapping("/{id}")
