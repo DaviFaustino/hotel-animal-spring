@@ -1,10 +1,14 @@
 package com.spring.animal.hotel.spring.controllers;
 
+import java.net.http.HttpHeaders;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +56,9 @@ public class BookingController {
             return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
         }
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                            .header("Content-Type", "application/json;charset=UTF-8")
+                            .body(serviceResponse);
     }
 
     @PutMapping("/{id}")
