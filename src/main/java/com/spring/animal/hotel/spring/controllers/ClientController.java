@@ -18,24 +18,42 @@ import com.spring.animal.hotel.spring.models.ClientModel;
 import com.spring.animal.hotel.spring.models.ClientDto;
 import com.spring.animal.hotel.spring.services.ClientService;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/clients")
+@Tag(name = "Hotel API")
 public class ClientController {
     @Autowired
     private ClientService clientService;
 
+    @Operation(summary = "Salva um novo cliente")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "Cliente salvo com sucesso")
+    })
     @PostMapping
     public ResponseEntity<ClientModel> saveClient(@RequestBody @Valid ClientDto clientDto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(clientService.saveClient(clientDto));
     }
 
+    @Operation(summary = "Retorna todos os clientes")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Todos os clientes cadastrados retornados com sucesso")
+    })
     @GetMapping
     public ResponseEntity<List<ClientModel>> getAllClients() {
         return ResponseEntity.status(HttpStatus.OK).body(clientService.getAllClients());
     }
 
+    @Operation(summary = "Retorna um cliente pelo id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Cliente retornado com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneClient(@PathVariable(value = "id") int id) {
         Object serviceResponse = clientService.getOneClient(id);
@@ -47,6 +65,10 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
+    @Operation(summary = "Retorna o custo total das reservas do cliente pelo id dele")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Custo total obtido com sucesso")
+    })
     @GetMapping("/total-hostings-cost/{id}")
     public ResponseEntity<Integer> getTotalHostingsCost(@PathVariable(value = "id") int id) {
         Integer serviceResponse = clientService.getTotalHostingsCost(id);
@@ -54,6 +76,11 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.OK).body(serviceResponse);
     }
 
+    @Operation(summary = "Atualiza todos os dados de um cliente pelo id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Dados do cliente atualizados com sucesso"),
+        @ApiResponse(responseCode = "404", description = "Cliente não encontrado")
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateCliente(@PathVariable(value = "id") int id, @RequestBody @Valid ClientDto clientDto) {
         Object serviceResponse = clientService.updateClient(id, clientDto);
@@ -65,6 +92,11 @@ public class ClientController {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(serviceResponse);
     }
 
+    @Operation(summary = "Apaga cadastro do cliente pelo id")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Deleção bem sucedida Sw"),
+        @ApiResponse(responseCode = "404", description = "O registro escolhido não existe Sw")
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteClient(@PathVariable(value = "id") int id) {
         boolean serviceResponse = clientService.deleteClient(id);
