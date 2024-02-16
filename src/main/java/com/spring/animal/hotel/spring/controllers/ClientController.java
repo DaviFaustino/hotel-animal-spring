@@ -26,7 +26,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/clients")
-@Tag(name = "Hotel API")
+@Tag(name = "Clients")
 public class ClientController {
     @Autowired
     private ClientService clientService;
